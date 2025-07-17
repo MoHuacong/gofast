@@ -12,14 +12,21 @@ type Handler interface {
 	SetLogger(logger *log.Logger)
 }
 
+type CallBack func (w http.ResponseWriter, r *http.Request) bool
+
+func DefaultCallBack(w http.ResponseWriter, r *http.Request) bool {
+	return false
+}
+
 // NewHandler returns the default Handler implementation. This default Handler
 // act as the "web server" component in fastcgi specification, which connects
 // fastcgi "application" through the network/address and passthrough I/O as
 // specified.
-func NewHandler(sessionHandler SessionHandler, clientFactory ClientFactory) Handler {
+func NewHandler(sessionHandler SessionHandler, clientFactory ClientFactory, callback CallBack) Handler {
 	return &defaultHandler{
 		sessionHandler: sessionHandler,
 		newClient:      clientFactory,
+		callback:	callback
 	}
 }
 
@@ -27,6 +34,7 @@ func NewHandler(sessionHandler SessionHandler, clientFactory ClientFactory) Hand
 type defaultHandler struct {
 	sessionHandler SessionHandler
 	newClient      ClientFactory
+	callback	CallBack
 	logger         *log.Logger
 }
 
@@ -37,7 +45,11 @@ func (h *defaultHandler) SetLogger(logger *log.Logger) {
 
 // ServeHTTP implements http.Handler
 func (h *defaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
+	if h.callback {
+		if h.callback(w, r) {
+			return
+		}
+	}
 	// TODO: separate dial logic to pool client / connection
 	c, err := h.newClient()
 	if err != nil {

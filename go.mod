@@ -1,4 +1,4 @@
-module github.com/yookoala/gofast
+module github.com/MoHuacong/gofast
 
 go 1.7
 

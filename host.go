@@ -26,7 +26,7 @@ func NewHandler(sessionHandler SessionHandler, clientFactory ClientFactory, call
 	return &defaultHandler{
 		sessionHandler: sessionHandler,
 		newClient:      clientFactory,
-		callback:	callback
+		callback:	CallBack
 	}
 }
 

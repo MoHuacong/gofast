@@ -26,7 +26,7 @@ func NewHandler(sessionHandler SessionHandler, clientFactory ClientFactory, call
 	return &defaultHandler{
 		sessionHandler: sessionHandler,
 		newClient:      clientFactory,
-		callback:	CallBack,
+		callback:	callback,
 	}
 }
 
@@ -45,7 +45,7 @@ func (h *defaultHandler) SetLogger(logger *log.Logger) {
 
 // ServeHTTP implements http.Handler
 func (h *defaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if h.callback {
+	if h.callback != nil {
 		if h.callback(w, r) {
 			return
 		}
